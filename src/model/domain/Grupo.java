@@ -8,7 +8,10 @@ public class Grupo {
 	private boolean grupoIniciais = false, grupoFinais = false; 
 	
 	
-	
+	public String toString()
+	{
+		return this.nome;
+	}
 	
 	public boolean isGrupoIniciais() {
 		return grupoIniciais;
