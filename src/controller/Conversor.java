@@ -7,8 +7,7 @@ import model.domain.Grupo;
 
 public class Conversor {
 	private ArrayList<Grupo> grupos = new ArrayList<Grupo>();
-	private ArrayList<Grupo> gruposTemp = new ArrayList<Grupo>();
-	private Grupo grupoEstados;
+	private Grupo grupoEstados, grupoEstadosTemp;
 	
 	public Conversor(Grupo grupo)
 	{
@@ -17,18 +16,82 @@ public class Conversor {
 	
 	public void gerarAFDMinimo()
 	{
-
-		
 		boolean estaReduzidoMax = false;
+		int qtdEstadosAnterior = 0, qtdEstadosAtual = 0;
+		
 		do
 		{
+			qtdEstadosAnterior = grupoEstados.getEstados().size();
 			adicionarGrupoFinais();
 			adicionarGrupoNormais();
 			imprimirGrupos(grupos);
 			agruparGruposIguais();
 			imprimirGrupos(grupos);
+			converterGruposParaEstados();
+			qtdEstadosAtual =  grupoEstados.getEstados().size();
+			
+			System.out.println(qtdEstadosAnterior + " x " + qtdEstadosAtual);
+			
 			estaReduzidoMax = true;
-		}while(!estaReduzidoMax);
+		}while(qtdEstadosAnterior > qtdEstadosAtual);
+	}
+	
+	private void converterGruposParaEstados()
+	{
+		grupoEstados.getEstados().clear();
+		
+		// Percorro cada grupo
+		for(int i=0; i < grupos.size(); i++)
+		{
+			Estado primeiroEstado = grupos.get(i).getEstados().get(0);
+			// Percorro todas as transições do primeiro estado
+			for(int j=0; j < primeiroEstado.getTransicoes().size(); j++)
+			{
+				Estado estadoApontado = primeiroEstado.getTransicoes().get(j).getEstado();
+				Grupo grupoApontado = buscarEstadoNosGrupos(estadoApontado);
+				
+				if(grupoApontado.getEstados().size() >= 2)
+				{
+					Estado primeiroEstadoDoGrupoApontado = grupoApontado.getEstados().get(0);
+					primeiroEstado.getTransicoes().get(j).setEstado(primeiroEstadoDoGrupoApontado);
+				}	
+			}
+			
+			grupoEstados.getEstados().add(primeiroEstado);
+			
+		}
+		grupoEstados.setNome(gerarNomeGrupo(grupoEstados));
+		System.out.println(grupoEstados);
+		
+		for (Estado estado : grupoEstados.getEstados()) {
+			imprimirEstado(estado);
+		}
+		
+	}
+	
+	private void imprimirEstado(Estado estado)
+	{
+		System.out.print("Estado '" + estado + "': ");
+		for(int i=0; i < estado.getTransicoes().size(); i++)
+		{
+			System.out.print(estado.getTransicoes().get(i).getValorTransicao() + "->'"+
+							   estado.getTransicoes().get(i).getEstado()+"' ");
+		}
+		System.out.println();
+	}
+	
+	private Grupo buscarEstadoNosGrupos(Estado estado)
+	{
+		
+		for(int i=0; i < grupos.size(); i++)
+		{
+			if(grupos.get(i).getEstados().contains(estado))
+			{
+				return grupos.get(i);
+			}
+		}
+		
+		return null;
 	}
 	
 	private void agruparGruposIguais()
@@ -151,7 +214,13 @@ public class Conversor {
 	private void imprimirGrupos(ArrayList<Grupo> grupos)
 	{
 		for(int i=0; i < grupos.size(); i++)
+		{
+			if(grupos.get(i).isGrupoIniciais())
+				System.out.print("I");
+			if(grupos.get(i).isGrupoFinais())
+				System.out.print("F");
 			System.out.print(grupos.get(i));
+		}
 		System.out.println();
 	}
 	
