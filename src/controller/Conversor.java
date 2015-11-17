@@ -19,9 +19,16 @@ public class Conversor {
 		boolean estaReduzidoMax = false;
 		int qtdEstadosAnterior = 0, qtdEstadosAtual = 0;
 		
+		
+		/* Repete até encontrar o AFD mínimo, ou seja, a quantidade de estados do loop
+		 * anterior vai ser igual na próxima
+		 */
+		int contVoltas = 1;
 		do
 		{
+			System.out.println("-----------------["+contVoltas+"]-----------------");
 			qtdEstadosAnterior = grupoEstados.getEstados().size();
+			grupos.clear();
 			adicionarGrupoFinais();
 			adicionarGrupoNormais();
 			imprimirGrupos(grupos);
@@ -30,10 +37,16 @@ public class Conversor {
 			converterGruposParaEstados();
 			qtdEstadosAtual =  grupoEstados.getEstados().size();
 			
-			System.out.println(qtdEstadosAnterior + " x " + qtdEstadosAtual);
-			
+			System.out.println("Qtd. de estados anterior(" + qtdEstadosAnterior + ") x atual(" + qtdEstadosAtual+")");
+			contVoltas++;
 			estaReduzidoMax = true;
 		}while(qtdEstadosAnterior > qtdEstadosAtual);
+		
+		System.out.println("\n\nAFD Mínimo: ");
+		System.out.print("Grupo: ");
+		imprimirGrupos(grupos);
+		System.out.println("Estados: ");
+		imprimirGrupo(grupoEstados);
 	}
 	
 	private void converterGruposParaEstados()
@@ -63,10 +76,15 @@ public class Conversor {
 		grupoEstados.setNome(gerarNomeGrupo(grupoEstados));
 		System.out.println(grupoEstados);
 		
-		for (Estado estado : grupoEstados.getEstados()) {
+		imprimirGrupo(grupoEstados);
+		
+	}
+	
+	private void imprimirGrupo(Grupo grupo)
+	{
+		for (Estado estado : grupo.getEstados()) {
 			imprimirEstado(estado);
 		}
-		
 	}
 	
 	private void imprimirEstado(Estado estado)
