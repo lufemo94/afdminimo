@@ -7,6 +7,137 @@ public class Grupo {
 	private ArrayList<Estado> estados = new ArrayList<Estado>();
 	private boolean grupoIniciais = false, grupoFinais = false; 
 	
+	// Cria um grupo para os estados finais e adiciona ele no conjunto de grupos
+	public static void adicionarGrupoFinais(Grupo grupoEstados, ArrayList<Grupo> grupos)
+	{
+		Grupo finais = new Grupo();
+		finais.setGrupoFinais(true);
+		
+		for(int i=0; i < grupoEstados.getEstados().size(); i++)
+		{
+			Estado estado = grupoEstados.getEstados().get(i);
+			
+			if(estado.isEstadoFinal())
+			{
+				if(estado.isEstadoInicial())
+				{
+					finais.setGrupoIniciais(true);
+				}
+				
+				finais.adicionarEstado(estado);
+			}			
+		}
+		finais.setNome(Grupo.gerarNomeGrupo(finais));
+		grupos.add(finais);
+	}
+	
+	// Cria um grupo para os estados normais (inicial ou não) e adiciona ele no conjunto de grupos
+	public static void adicionarGrupoNormais(Grupo grupoEstados, ArrayList<Grupo> grupos)
+	{
+		Grupo normal = new Grupo();
+		
+		for(int i=0; i < grupoEstados.getEstados().size(); i++)
+		{
+			Estado estado = grupoEstados.getEstados().get(i);
+			
+			if(!estado.isEstadoFinal())
+			{
+				if(estado.isEstadoInicial())
+				{
+					normal.setGrupoIniciais(true);
+				}
+				normal.adicionarEstado(estado);
+			}
+		}
+		normal.setNome(Grupo.gerarNomeGrupo(normal));
+		grupos.add(normal);
+	}
+	
+	// Busca um estado no conjunto de grupos e retorna o grupo que ele está contido
+	public static Grupo buscarEstadoNosGrupos(Estado estado, ArrayList<Grupo> grupos)
+	{
+		
+		for(int i=0; i < grupos.size(); i++)
+		{
+			if(grupos.get(i).getEstados().contains(estado))
+			{
+				return grupos.get(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	
+	// Cria um novo grupo com somente um estado
+	public static Grupo criarNovoGrupo(Estado estadoA)
+	{
+		Grupo grupo = new Grupo();
+		grupo.getEstados().add(estadoA);
+		grupo.setNome(Grupo.gerarNomeGrupo(grupo));
+		grupo.setGrupoIniciais(estadoA.isEstadoInicial());
+		grupo.setGrupoFinais(estadoA.isEstadoFinal());
+		return grupo;
+	}
+	
+	// Cria um novo grupo com dois estados
+	public static Grupo criarNovoGrupo(Estado estadoA, Estado estadoB)
+	{
+		Grupo grupo = new Grupo();
+		grupo.getEstados().add(estadoA);
+		grupo.getEstados().add(estadoB);
+		grupo.setNome(Grupo.gerarNomeGrupo(grupo));
+		// Verifica se é um grupo inicial
+		if(estadoA.isEstadoInicial() || estadoB.isEstadoInicial())
+			grupo.setGrupoIniciais(true);
+		// Verifica se é um grupo final
+		grupo.setGrupoFinais(estadoA.isEstadoFinal());
+		
+		return grupo;
+	}
+	
+	// Gera o nome do grupo de acordo com os valores dos estados
+	public static String gerarNomeGrupo(Grupo grupo)
+	{
+		String nomeGrupo = "{";
+		int cont = 0;
+		for(int i=0; i < grupo.getEstados().size(); i++)
+		{
+			Estado estado = grupo.getEstados().get(i);
+			if(cont == 0)
+				nomeGrupo = nomeGrupo.concat(estado.getValor());
+			else
+				nomeGrupo = nomeGrupo.concat("," + estado.getValor());
+			
+			cont++;			
+		}
+			
+		nomeGrupo = nomeGrupo.concat("}");
+		return nomeGrupo;
+	}
+	
+	// Imprime todos os estados(valores e transições) de um determinado grupo
+	public static void imprimirGrupo(Grupo grupo)
+	{
+		for (Estado estado : grupo.getEstados()) {
+			Estado.imprimirEstado(estado);
+		}
+	}
+	
+	// Imprime o nome dos grupos com o prefixo I(inicial) ou F(final) 
+	public static void imprimirGrupos(ArrayList<Grupo> grupos)
+	{
+		for(int i=0; i < grupos.size(); i++)
+		{
+			if(grupos.get(i).isGrupoIniciais())
+				System.out.print("I");
+			if(grupos.get(i).isGrupoFinais())
+				System.out.print("F");
+			System.out.print(grupos.get(i));
+		}
+		System.out.println();
+	}
+
 	
 	public String toString()
 	{

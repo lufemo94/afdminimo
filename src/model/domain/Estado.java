@@ -13,6 +13,34 @@ public class Estado {
 		this.estadoFinal = estadoFinal;
 	}
 	
+	// Imprime o valor e as transições do estado
+	public static void imprimirEstado(Estado estado)
+	{
+		System.out.print("Estado '" + estado + "': ");
+		for(int i=0; i < estado.getTransicoes().size(); i++)
+		{
+			System.out.print(estado.getTransicoes().get(i).getValorTransicao() + "->'"+
+							   estado.getTransicoes().get(i).getEstado()+"' ");
+		}
+		System.out.println();
+	}
+	
+	// Verifica se os dois estados são iguais (possuem as mesmas transições)
+	public static boolean estadosSaoIguais(Estado estadoA, Estado estadoB)
+	{
+		/* Percorre todas as transições (considerando que todos os estados tem a mesma
+		 * quantidade de transições e usam todo o alfabeto)
+		*/
+		boolean saoIguais = true;
+		for(int i=0; i < estadoA.getTransicoes().size(); i++)
+		{
+			String ligacaoDeA = estadoA.getTransicoes().get(i).getEstado().getValor();
+			String ligacaoDeB = estadoB.getTransicoes().get(i).getEstado().getValor();
+			if(!ligacaoDeA.equals(ligacaoDeB))
+				saoIguais = false;
+		}
+		return saoIguais;
+	}
 	
 	public Estado(String valor) {
 		this.valor = valor;

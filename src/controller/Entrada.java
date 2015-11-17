@@ -3,6 +3,7 @@ package controller;
 import java.util.ArrayList;
 
 import model.dao.Arquivo;
+import model.domain.Constantes;
 import model.domain.Estado;
 import model.domain.Grupo;
 import model.domain.Transicao;
@@ -11,6 +12,7 @@ public class Entrada {
 	private ArrayList<Estado> estados = new ArrayList<Estado>();
 	private ArrayList<Grupo> grupos = new ArrayList<Grupo>();
 	
+	// Faz a leitura de um arquivo
 	private String lerArquivo(String arquivo)
 	{
 		String conteudo = null;
@@ -23,16 +25,17 @@ public class Entrada {
 		return conteudo;
 	}
 	
+	// Busca o AFD no conteúdo do arquivo
 	public void buscarAFD()
 	{
 		String afdString = lerArquivo("inputs/input.txt");
-		afdString = afdString.replace("\n", "").replace("\r", "");
+		afdString = afdString.replace(Constantes.BREAK_LINE1, "").replace(Constantes.BREAK_LINE2, "");
 		
-		String[] stringSeparada = afdString.split(";");
+		String[] stringSeparada = afdString.split(Constantes.SEMICOLON);
 		
 		String[] stringEstados = separarColunas(stringSeparada[0]);
 		String[] stringAlfabeto = separarColunas(stringSeparada[1]);
-		String[] stringTransacoes = separarColunas(stringSeparada[2], ",");
+		String[] stringTransacoes = separarColunas(stringSeparada[2], Constantes.COMMA);
 		String[] stringEstadosIniciais = separarColunas(stringSeparada[3]);
 		String[] stringEstadosFinais = separarColunas(stringSeparada[4]);
 		
@@ -45,17 +48,13 @@ public class Entrada {
 		converter();
 	}
 	
+	// Converte o AFD para AFD mínimo
 	private void converter()
 	{
 		// Gera o grupo com todos os estados
 		Grupo grupo = new Grupo();
 		for(int i=0; i < estados.size(); i++)
 		{
-			/*System.out.println("Estado: " + estados.get(i).getValor() +
-							   ": 0->"+estados.get(i).getTransicoes().get(0).getEstado().getValor()+
-							   " 1->"+estados.get(i).getTransicoes().get(1).getEstado().getValor());
-			*/
-			
 			grupo.adicionarEstado(estados.get(i));
 		}
 		
@@ -63,6 +62,7 @@ public class Entrada {
 		conversor.gerarAFDMinimo();
 	}
 	
+	// Adiciona um estado
 	private void adicionarEstados(String[] stringEstados)
 	{
 		for (String estadoString : stringEstados) {
@@ -71,6 +71,7 @@ public class Entrada {
 		}
 	}
 	
+	// Adiciona os estado iniciais
 	private void adicionarEstadosIniciais(String[] stringEstadosIniciais)
 	{	
 		// Verifico todos os estados
@@ -87,6 +88,24 @@ public class Entrada {
 		}	
 	}
 	
+	// Adiciona os estados finais
+	private void adicionarEstadosFinais(String[] stringEstadosFinais)
+	{
+		// Verifico todos os estados
+		for(int i=0; i < estados.size(); i++)
+		{
+			// Verifico todos os estados finais
+			for(int j=0; j < stringEstadosFinais.length; j++)
+			{
+				if(estados.get(i).getValor().equals(stringEstadosFinais[j]))
+				{
+					estados.get(i).setEstadoFinal(true);
+				}
+			}
+		}
+	}
+	
+	// Adiciona transições
 	private void adicionarTransicoes(String[] stringLinhaTransacoes, String[] stringAlfabeto)
 	{
 		
@@ -113,6 +132,7 @@ public class Entrada {
 		
 	}
 	
+	// Busca um estado
 	private int buscarEstado(String valor)
 	{
 		for(int i=0; i < estados.size(); i++)
@@ -124,28 +144,15 @@ public class Entrada {
 		return 0;
 	}
 	
-	private void adicionarEstadosFinais(String[] stringEstadosFinais)
-	{
-		// Verifico todos os estados
-		for(int i=0; i < estados.size(); i++)
-		{
-			// Verifico todos os estados finais
-			for(int j=0; j < stringEstadosFinais.length; j++)
-			{
-				if(estados.get(i).getValor().equals(stringEstadosFinais[j]))
-				{
-					estados.get(i).setEstadoFinal(true);
-				}
-			}
-		}
-	}
 	
+	// Separa as colunas pelo espaço
 	public String[] separarColunas(String linha)
 	{
-		String[] stringSeparada = linha.split(" ");
+		String[] stringSeparada = linha.split(Constantes.SPACE);
 		return stringSeparada;
 	}
 	
+	// Separa as colunas por algum separador
 	public String[] separarColunas(String linha, String separador)
 	{
 		String[] stringSeparada = linha.split(separador);
