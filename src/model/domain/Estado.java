@@ -13,6 +13,15 @@ public class Estado {
 		this.estadoFinal = estadoFinal;
 	}
 	
+	
+	public static Estado copiarEstado(Estado estado)
+	{
+		Estado novoEstado = new Estado(estado.getValor());
+		
+		return novoEstado;
+	}
+	
+	
 	// Imprime o valor e as transições do estado
 	public static void imprimirEstado(Estado estado)
 	{

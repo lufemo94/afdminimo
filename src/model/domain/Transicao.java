@@ -9,6 +9,8 @@ public class Transicao {
 		this.estado = estado;
 		this.valorTransicao = valorTransicao;
 	}
+	
+
 
 	public Estado getEstado() {
 		return estado;

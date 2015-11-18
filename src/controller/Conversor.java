@@ -8,6 +8,7 @@ import model.domain.Grupo;
 public class Conversor {
 	private ArrayList<Grupo> gruposR = new ArrayList<Grupo>();
 	private ArrayList<Grupo> gruposS = new ArrayList<Grupo>();
+	private ArrayList<Grupo> gruposTemp = new ArrayList<Grupo>();
 	private Grupo grupoEstados, grupoEstadosY;
 	
 	public Conversor(Grupo grupo)
@@ -18,17 +19,21 @@ public class Conversor {
 	public void gerarAFDMinimo()
 	{
 
-		Grupo.adicionarGrupoFinais(grupoEstados, gruposR);
-		Grupo.adicionarGrupoNormais(grupoEstados, gruposR);
 		Grupo.imprimirGrupos(gruposR);
-		
 		int indiceEstado = 0;
 		Estado estadoE;
 		grupoEstadosY = new Grupo();
 		do
 		{
+			gruposR.clear();
+			Grupo.adicionarGrupoFinais(grupoEstados, gruposR);
+			Grupo.adicionarGrupoNormais(grupoEstados, gruposR);
+			gruposS.clear();
 			Grupo.copiarGrupos(gruposR, gruposS);
+			gruposR.clear();
+			gruposTemp = gruposS;
 			for (Grupo grupo : gruposS) {
+				
 				indiceEstado = 0;
 				do 
 				{
@@ -61,9 +66,11 @@ public class Conversor {
 					indiceEstado++;
 				} while (grupo.getEstados().size() != 0);
 			}
-			boolean teste = gruposR.equals(gruposS);
+			boolean teste = gruposR.equals(gruposTemp);
 			System.out.println("valor de teste: " + teste);
-		}while(!gruposR.equals(gruposS));
+			converterGruposParaEstados();
+			Grupo.imprimirGrupo(grupoEstados);
+		}while(!gruposR.equals(gruposTemp));
 		
 	}
 	
@@ -155,9 +162,6 @@ public class Conversor {
 			
 		}
 		grupoEstados.setNome(Grupo.gerarNomeGrupo(grupoEstados));
-		System.out.println(grupoEstados);
-		Grupo.imprimirGrupo(grupoEstados);
-		
 	}
 	
 
