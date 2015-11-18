@@ -7,6 +7,14 @@ public class Grupo {
 	private ArrayList<Estado> estados = new ArrayList<Estado>();
 	private boolean grupoIniciais = false, grupoFinais = false; 
 	
+	public static void copiarGrupos(ArrayList<Grupo> gruposOrigem, ArrayList<Grupo> gruposDestino)
+	{
+		for(int i=0; i < gruposOrigem.size(); i++)
+		{
+			gruposDestino.add(gruposOrigem.get(i));
+		}
+	}
+	
 	// Cria um grupo para os estados finais e adiciona ele no conjunto de grupos
 	public static void adicionarGrupoFinais(Grupo grupoEstados, ArrayList<Grupo> grupos)
 	{

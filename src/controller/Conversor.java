@@ -6,16 +6,96 @@ import model.domain.Estado;
 import model.domain.Grupo;
 
 public class Conversor {
-	private ArrayList<Grupo> grupos = new ArrayList<Grupo>();
-	private Grupo grupoEstados, grupoEstadosTemp;
+	private ArrayList<Grupo> gruposR = new ArrayList<Grupo>();
+	private ArrayList<Grupo> gruposS = new ArrayList<Grupo>();
+	private Grupo grupoEstados, grupoEstadosY;
 	
 	public Conversor(Grupo grupo)
 	{
 		this.grupoEstados = grupo;
 	}
 	
-	// Gera o AFD mínimo
 	public void gerarAFDMinimo()
+	{
+
+		Grupo.adicionarGrupoFinais(grupoEstados, gruposR);
+		Grupo.adicionarGrupoNormais(grupoEstados, gruposR);
+		Grupo.imprimirGrupos(gruposR);
+		
+		int indiceEstado = 0;
+		Estado estadoE;
+		grupoEstadosY = new Grupo();
+		do
+		{
+			Grupo.copiarGrupos(gruposR, gruposS);
+			for (Grupo grupo : gruposS) {
+				indiceEstado = 0;
+				do 
+				{
+					System.out.println("IndiceEstado: " + indiceEstado + " TamGrupo: " + grupo.getEstados().size());
+					
+					estadoE = grupo.getEstados().get(0);
+					grupoEstadosY = new Grupo();
+					grupoEstadosY.adicionarEstado(estadoE);
+					grupoEstadosY.setNome(Grupo.gerarNomeGrupo(grupoEstadosY));
+					for (Estado estadoD : grupo.getEstados()) {
+						if(estadoD != estadoE)
+						{
+							if(Estado.estadosSaoIguais(estadoE, estadoD))
+							{
+								grupoEstadosY.adicionarEstado(estadoD);
+								grupoEstadosY.setNome(Grupo.gerarNomeGrupo(grupoEstadosY));
+							}
+						}
+					}
+					
+					for (Estado estadoARemover : grupoEstadosY.getEstados()) {
+						grupo.getEstados().remove(estadoARemover);
+					}
+
+					grupo.setNome(Grupo.gerarNomeGrupo(grupo));
+					if(grupo.getEstados().isEmpty())
+						gruposR.remove(grupo);
+					gruposR.add(grupoEstadosY);
+					Grupo.imprimirGrupos(gruposR);
+					indiceEstado++;
+				} while (grupo.getEstados().size() != 0);
+			}
+			boolean teste = gruposR.equals(gruposS);
+			System.out.println("valor de teste: " + teste);
+		}while(!gruposR.equals(gruposS));
+		
+	}
+	
+	private Estado proximoEstado(Estado estadoAnterior, Grupo grupo)
+	{
+		if(grupo.getEstados().contains(estadoAnterior))
+		{
+			int indiceAnterior = grupo.getEstados().indexOf(estadoAnterior);
+			
+			if(indiceAnterior+1 < grupo.getEstados().size())
+			{
+				return grupo.getEstados().get(indiceAnterior+1);
+			}
+		}
+		else if(estadoAnterior == null)
+		{
+			if(grupo.getEstados().size() >= 1)
+				return grupo.getEstados().get(0);
+		}
+		
+		System.out.println("Próximo estado retornando NULL");
+		return null;
+	}
+	
+	private boolean compararGrupos(ArrayList<Grupo> gruposR, ArrayList<Grupo> gruposS)
+	{
+		return true;
+	}
+	
+	
+	// Gera o AFD mínimo
+	public void gerarAFDMinimoAntigo()
 	{
 		boolean estaReduzidoMax = false;
 		int qtdEstadosAnterior = 0, qtdEstadosAtual = 0;
@@ -28,12 +108,12 @@ public class Conversor {
 		{
 			System.out.println("-----------------["+contVoltas+"]-----------------");
 			qtdEstadosAnterior = grupoEstados.getEstados().size();
-			grupos.clear();
-			Grupo.adicionarGrupoFinais(grupoEstados, grupos);
-			Grupo.adicionarGrupoNormais(grupoEstados, grupos);
-			Grupo.imprimirGrupos(grupos);
+			gruposR.clear();
+			Grupo.adicionarGrupoFinais(grupoEstados, gruposR);
+			Grupo.adicionarGrupoNormais(grupoEstados, gruposR);
+			Grupo.imprimirGrupos(gruposR);
 			agruparGruposIguais();
-			Grupo.imprimirGrupos(grupos);
+			Grupo.imprimirGrupos(gruposR);
 			converterGruposParaEstados();
 			qtdEstadosAtual =  grupoEstados.getEstados().size();
 			
@@ -44,7 +124,7 @@ public class Conversor {
 		
 		System.out.println("\n\nAFD Mínimo: ");
 		System.out.print("Grupo: ");
-		Grupo.imprimirGrupos(grupos);
+		Grupo.imprimirGrupos(gruposR);
 		System.out.println("Estados: ");
 		Grupo.imprimirGrupo(grupoEstados);
 	}
@@ -55,14 +135,14 @@ public class Conversor {
 		grupoEstados.getEstados().clear();
 		
 		// Percorro cada grupo
-		for(int i=0; i < grupos.size(); i++)
+		for(int i=0; i < gruposR.size(); i++)
 		{
-			Estado primeiroEstado = grupos.get(i).getEstados().get(0);
+			Estado primeiroEstado = gruposR.get(i).getEstados().get(0);
 			// Percorro todas as transições do primeiro estado
 			for(int j=0; j < primeiroEstado.getTransicoes().size(); j++)
 			{
 				Estado estadoApontado = primeiroEstado.getTransicoes().get(j).getEstado();
-				Grupo grupoApontado = Grupo.buscarEstadoNosGrupos(estadoApontado, grupos);
+				Grupo grupoApontado = Grupo.buscarEstadoNosGrupos(estadoApontado, gruposR);
 				
 				if(grupoApontado.getEstados().size() >= 2)
 				{
@@ -86,17 +166,17 @@ public class Conversor {
 	{
 		boolean eDiferente = true;
 		// Percorre todos os grupos
-		for(int i=0; i < grupos.size(); i++)
+		for(int i=0; i < gruposR.size(); i++)
 		{
 			eDiferente = true;
 			// Percorre todos os estados do grupo
-			for(int j=0; j < grupos.get(i).getEstados().size(); j++)
+			for(int j=0; j < gruposR.get(i).getEstados().size(); j++)
 			{
-				Estado estadoA = grupos.get(i).getEstados().get(j);
+				Estado estadoA = gruposR.get(i).getEstados().get(j);
 				
-				for(int k=0; k < grupos.get(i).getEstados().size(); k++)
+				for(int k=0; k < gruposR.get(i).getEstados().size(); k++)
 				{
-					Estado estadoB = grupos.get(i).getEstados().get(k);
+					Estado estadoB = gruposR.get(i).getEstados().get(k);
 					
 					// Um estado não pode comparar com ele mesmo
 					if(estadoA != estadoB)
@@ -110,12 +190,12 @@ public class Conversor {
 							// Deve verificar se o grupo vai ser inicial ou final
 							eDiferente = false;
 							
-							if(grupos.get(i).getEstados().size() > 2)
+							if(gruposR.get(i).getEstados().size() > 2)
 							{
-								grupos.get(i).getEstados().remove(j);
-								grupos.get(i).getEstados().remove(k);
-								grupos.get(i).setNome(Grupo.gerarNomeGrupo(grupos.get(i)));
-								grupos.add(Grupo.criarNovoGrupo(estadoA, estadoB));
+								gruposR.get(i).getEstados().remove(j);
+								gruposR.get(i).getEstados().remove(k);
+								gruposR.get(i).setNome(Grupo.gerarNomeGrupo(gruposR.get(i)));
+								gruposR.add(Grupo.criarNovoGrupo(estadoA, estadoB));
 							}
 							
 						}
@@ -127,11 +207,11 @@ public class Conversor {
 					// Remove o estado desse grupo
 					// Se tiver só o estado, deixa ele
 					// Se tiver mais estados no grupo, cria um grupo para ele
-					if(grupos.get(i).getEstados().size() > 1)
+					if(gruposR.get(i).getEstados().size() > 1)
 					{
-						grupos.get(i).getEstados().remove(j);
-						grupos.get(i).setNome(Grupo.gerarNomeGrupo(grupos.get(i)));
-						grupos.add(Grupo.criarNovoGrupo(estadoA));
+						gruposR.get(i).getEstados().remove(j);
+						gruposR.get(i).setNome(Grupo.gerarNomeGrupo(gruposR.get(i)));
+						gruposR.add(Grupo.criarNovoGrupo(estadoA));
 					}
 	
 				}
