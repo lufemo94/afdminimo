@@ -18,26 +18,25 @@ public class Conversor {
 	
 	public void gerarAFDMinimo()
 	{
-
-		Grupo.imprimirGrupos(gruposR);
 		int indiceEstado = 0;
 		Estado estadoE;
 		grupoEstadosY = new Grupo();
+		
 		do
 		{
+			System.out.println("Inicio repeti√ß√£o");
+			Grupo.imprimirGrupos(gruposS);
 			gruposR.clear();
 			Grupo.adicionarGrupoFinais(grupoEstados, gruposR);
 			Grupo.adicionarGrupoNormais(grupoEstados, gruposR);
-			gruposS.clear();
-			Grupo.copiarGrupos(gruposR, gruposS);
+			gruposS = Grupo.copiarGrupos(gruposR);
 			gruposR.clear();
-			gruposTemp = gruposS;
-			for (Grupo grupo : gruposS) {
-				
+			for(int i=0; i < gruposS.size(); i++){
+				Grupo grupo = Grupo.copiarGrupo(gruposS.get(i));
 				indiceEstado = 0;
 				do 
 				{
-					System.out.println("IndiceEstado: " + indiceEstado + " TamGrupo: " + grupo.getEstados().size());
+					//System.out.println("IndiceEstado: " + indiceEstado + " TamGrupo: " + grupo.getEstados().size());
 					
 					estadoE = grupo.getEstados().get(0);
 					grupoEstadosY = new Grupo();
@@ -66,75 +65,56 @@ public class Conversor {
 					indiceEstado++;
 				} while (grupo.getEstados().size() != 0);
 			}
-			boolean teste = gruposR.equals(gruposTemp);
-			System.out.println("valor de teste: " + teste);
-			converterGruposParaEstados();
-			Grupo.imprimirGrupo(grupoEstados);
-		}while(!gruposR.equals(gruposTemp));
-		
-	}
-	
-	private Estado proximoEstado(Estado estadoAnterior, Grupo grupo)
-	{
-		if(grupo.getEstados().contains(estadoAnterior))
-		{
-			int indiceAnterior = grupo.getEstados().indexOf(estadoAnterior);
 			
-			if(indiceAnterior+1 < grupo.getEstados().size())
-			{
-				return grupo.getEstados().get(indiceAnterior+1);
-			}
-		}
-		else if(estadoAnterior == null)
-		{
-			if(grupo.getEstados().size() >= 1)
-				return grupo.getEstados().get(0);
-		}
-		
-		System.out.println("PrÛximo estado retornando NULL");
-		return null;
-	}
-	
-	private boolean compararGrupos(ArrayList<Grupo> gruposR, ArrayList<Grupo> gruposS)
-	{
-		return true;
-	}
-	
-	
-	// Gera o AFD mÌnimo
-	public void gerarAFDMinimoAntigo()
-	{
-		boolean estaReduzidoMax = false;
-		int qtdEstadosAnterior = 0, qtdEstadosAtual = 0;
-		
-		/* Repete atÈ encontrar o AFD mÌnimo, ou seja, a quantidade de estados do loop
-		 * anterior vai ser igual na prÛxima
-		 */
-		int contVoltas = 1;
-		do
-		{
-			System.out.println("-----------------["+contVoltas+"]-----------------");
-			qtdEstadosAnterior = grupoEstados.getEstados().size();
-			gruposR.clear();
-			Grupo.adicionarGrupoFinais(grupoEstados, gruposR);
-			Grupo.adicionarGrupoNormais(grupoEstados, gruposR);
-			Grupo.imprimirGrupos(gruposR);
-			agruparGruposIguais();
-			Grupo.imprimirGrupos(gruposR);
 			converterGruposParaEstados();
-			qtdEstadosAtual =  grupoEstados.getEstados().size();
+			/*System.out.println("AFD convertido para estados: ");
+			Grupo.imprimirGrupo(grupoEstados);*/
 			
-			System.out.println("Qtd. de estados anterior(" + qtdEstadosAnterior + ") x atual(" + qtdEstadosAtual+")");
-			contVoltas++;
-			estaReduzidoMax = true;
-		}while(qtdEstadosAnterior > qtdEstadosAtual);
+			//System.out.println("Houve diferen√ßa? " + houverDiferenca(gruposS, grupoEstados));
+			
+		}while(houverDiferenca(gruposS, grupoEstados));
 		
-		System.out.println("\n\nAFD MÌnimo: ");
-		System.out.print("Grupo: ");
+		System.out.println("AFD Minimizado: ");
 		Grupo.imprimirGrupos(gruposR);
-		System.out.println("Estados: ");
 		Grupo.imprimirGrupo(grupoEstados);
 	}
+	
+	
+	private boolean houverDiferenca(ArrayList<Grupo> gruposAnterior, Grupo grupoEstadosAtual)
+	{
+		boolean eDiferente = true;
+		// Crio um novo conjunto de grupo com os novos estados (grupos convertidos para estados)
+		ArrayList<Grupo> gruposTemp = new ArrayList<Grupo>();
+		Grupo.adicionarGrupoFinais(grupoEstadosAtual, gruposTemp);
+		Grupo.adicionarGrupoNormais(grupoEstadosAtual, gruposTemp);
+		
+		// Compara os dois conjuntos de grupo
+		if(gruposTemp.size() == gruposAnterior.size())
+		{
+			//System.out.println("Tem a mesma quantida de grupos");
+			int contGruposIguais = 0;
+			for(int i=0; i < gruposAnterior.size(); i++)
+			{
+				if(gruposTemp.get(i).getEstados().size() == gruposAnterior.get(i).getEstados().size())
+				{
+					//System.out.println("Tem a mesma quantidade de estados no groupo " + i);
+					contGruposIguais++;
+				}
+			}
+			
+			if(contGruposIguais == gruposTemp.size())
+				eDiferente = false;
+		}
+		
+		/*System.out.println("GruposS: ");
+		Grupo.imprimirGrupos(gruposAnterior);
+		
+		System.out.println("Grupos Temp: ");
+		Grupo.imprimirGrupos(gruposTemp);*/
+		
+		return eDiferente;
+	}
+	
 	
 	// Converte um conjunto de grupos para um conjunto de estados
 	private void converterGruposParaEstados()
@@ -145,7 +125,7 @@ public class Conversor {
 		for(int i=0; i < gruposR.size(); i++)
 		{
 			Estado primeiroEstado = gruposR.get(i).getEstados().get(0);
-			// Percorro todas as transiÁıes do primeiro estado
+			// Percorro todas as transiÔøΩÔøΩes do primeiro estado
 			for(int j=0; j < primeiroEstado.getTransicoes().size(); j++)
 			{
 				Estado estadoApontado = primeiroEstado.getTransicoes().get(j).getEstado();
@@ -162,66 +142,6 @@ public class Conversor {
 			
 		}
 		grupoEstados.setNome(Grupo.gerarNomeGrupo(grupoEstados));
-	}
-	
-
-	// Faz o agrupamento de estados iguais e diferentes
-	private void agruparGruposIguais()
-	{
-		boolean eDiferente = true;
-		// Percorre todos os grupos
-		for(int i=0; i < gruposR.size(); i++)
-		{
-			eDiferente = true;
-			// Percorre todos os estados do grupo
-			for(int j=0; j < gruposR.get(i).getEstados().size(); j++)
-			{
-				Estado estadoA = gruposR.get(i).getEstados().get(j);
-				
-				for(int k=0; k < gruposR.get(i).getEstados().size(); k++)
-				{
-					Estado estadoB = gruposR.get(i).getEstados().get(k);
-					
-					// Um estado n„o pode comparar com ele mesmo
-					if(estadoA != estadoB)
-					{
-						System.out.println("Comparo " + estadoA + " e " + estadoB + 
-										   " = " + Estado.estadosSaoIguais(estadoA, estadoB));
-						if(Estado.estadosSaoIguais(estadoA, estadoB))
-						{
-							// Se sÛ tiver os dois estados no grupo, deixa eles
-							// Se tiver mais estados no grupo, cria um grupo para os dois
-							// Deve verificar se o grupo vai ser inicial ou final
-							eDiferente = false;
-							
-							if(gruposR.get(i).getEstados().size() > 2)
-							{
-								gruposR.get(i).getEstados().remove(j);
-								gruposR.get(i).getEstados().remove(k);
-								gruposR.get(i).setNome(Grupo.gerarNomeGrupo(gruposR.get(i)));
-								gruposR.add(Grupo.criarNovoGrupo(estadoA, estadoB));
-							}
-							
-						}
-					}
-				}
-				
-				if(eDiferente)
-				{
-					// Remove o estado desse grupo
-					// Se tiver sÛ o estado, deixa ele
-					// Se tiver mais estados no grupo, cria um grupo para ele
-					if(gruposR.get(i).getEstados().size() > 1)
-					{
-						gruposR.get(i).getEstados().remove(j);
-						gruposR.get(i).setNome(Grupo.gerarNomeGrupo(gruposR.get(i)));
-						gruposR.add(Grupo.criarNovoGrupo(estadoA));
-					}
-	
-				}
-			}
-		}
-	}
-	
+	}	
 	
 }
