@@ -7,12 +7,29 @@ public class Grupo {
 	private ArrayList<Estado> estados = new ArrayList<Estado>();
 	private boolean grupoIniciais = false, grupoFinais = false; 
 	
-	public static void copiarGrupos(ArrayList<Grupo> gruposOrigem, ArrayList<Grupo> gruposDestino)
+	public static ArrayList<Grupo> copiarGrupos(ArrayList<Grupo> gruposOrigem)
 	{
+		ArrayList<Grupo> grupos = new ArrayList<Grupo>();
 		for(int i=0; i < gruposOrigem.size(); i++)
 		{
-			gruposDestino.add(gruposOrigem.get(i));
+			grupos.add(copiarGrupo(gruposOrigem.get(i)));
 		}
+		return grupos;
+	}
+	
+	public static Grupo copiarGrupo(Grupo grupoOrigem)
+	{
+		Grupo grupo = new Grupo();
+		grupo.setNome(grupoOrigem.getNome());
+		grupo.setGrupoFinais(grupoOrigem.isGrupoFinais());
+		grupo.setGrupoIniciais(grupoOrigem.isGrupoIniciais());
+		
+		for(int i=0; i < grupoOrigem.getEstados().size(); i++)
+		{
+			grupo.getEstados().add(grupoOrigem.getEstados().get(i));
+			
+		}
+		return grupo;
 	}
 	
 	// Cria um grupo para os estados finais e adiciona ele no conjunto de grupos
@@ -39,7 +56,7 @@ public class Grupo {
 		grupos.add(finais);
 	}
 	
-	// Cria um grupo para os estados normais (inicial ou não) e adiciona ele no conjunto de grupos
+	// Cria um grupo para os estados normais (inicial ou nï¿½o) e adiciona ele no conjunto de grupos
 	public static void adicionarGrupoNormais(Grupo grupoEstados, ArrayList<Grupo> grupos)
 	{
 		Grupo normal = new Grupo();
@@ -61,7 +78,7 @@ public class Grupo {
 		grupos.add(normal);
 	}
 	
-	// Busca um estado no conjunto de grupos e retorna o grupo que ele está contido
+	// Busca um estado no conjunto de grupos e retorna o grupo que ele estï¿½ contido
 	public static Grupo buscarEstadoNosGrupos(Estado estado, ArrayList<Grupo> grupos)
 	{
 		
@@ -95,10 +112,10 @@ public class Grupo {
 		grupo.getEstados().add(estadoA);
 		grupo.getEstados().add(estadoB);
 		grupo.setNome(Grupo.gerarNomeGrupo(grupo));
-		// Verifica se é um grupo inicial
+		// Verifica se ï¿½ um grupo inicial
 		if(estadoA.isEstadoInicial() || estadoB.isEstadoInicial())
 			grupo.setGrupoIniciais(true);
-		// Verifica se é um grupo final
+		// Verifica se ï¿½ um grupo final
 		grupo.setGrupoFinais(estadoA.isEstadoFinal());
 		
 		return grupo;
@@ -124,7 +141,7 @@ public class Grupo {
 		return nomeGrupo;
 	}
 	
-	// Imprime todos os estados(valores e transições) de um determinado grupo
+	// Imprime todos os estados(valores e transiï¿½ï¿½es) de um determinado grupo
 	public static void imprimirGrupo(Grupo grupo)
 	{
 		for (Estado estado : grupo.getEstados()) {

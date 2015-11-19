@@ -25,7 +25,13 @@ public class Estado {
 	// Imprime o valor e as transições do estado
 	public static void imprimirEstado(Estado estado)
 	{
-		System.out.print("Estado '" + estado + "': ");
+		System.out.print("Estado '" + estado + "' ");
+		if(estado.isEstadoFinal())
+			System.out.print("(F)");
+		if(estado.isEstadoInicial())
+			System.out.print("(I)");
+		System.out.print(": ");
+		
 		for(int i=0; i < estado.getTransicoes().size(); i++)
 		{
 			System.out.print(estado.getTransicoes().get(i).getValorTransicao() + "->'"+
